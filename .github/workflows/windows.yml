@@ -1,0 +1,42 @@
+name: Windows build and release
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build supported runtime version
+        run: dotnet build src/ClipboardVault.csproj -c Release -p:TargetFramework=net8.0-windows
+      - name: Test size boundaries
+        shell: pwsh
+        run: |
+          $p = Start-Process src/bin/Release/net8.0-windows/ClipboardVault.exe -ArgumentList '--self-test' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Self-test failed' }
+          Get-Content src/bin/Release/net8.0-windows/self-test-result.txt
+      - name: Publish Windows x64
+        run: dotnet publish src/ClipboardVault.csproj -c Release -p:TargetFramework=net8.0-windows -r win-x64 --self-contained true -o publish
+      - name: Package
+        shell: pwsh
+        run: Compress-Archive -Path publish/* -DestinationPath ClipboardVault-win-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ClipboardVault-win-x64
+          path: ClipboardVault-win-x64.zip
+      - name: Release tagged version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create $env:GITHUB_REF_NAME ClipboardVault-win-x64.zip --generate-notes
