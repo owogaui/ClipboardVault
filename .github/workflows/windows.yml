@@ -40,3 +40,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create $env:GITHUB_REF_NAME ClipboardVault-win-x64.zip --generate-notes
+      - name: Publish first preview
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v0.1.0-preview *> $null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Output 'First preview already published; use a new version tag for another release.'
+          } else {
+            gh release create v0.1.0-preview ClipboardVault-win-x64.zip --target $env:GITHUB_SHA --title 'ClipboardVault v0.1.0 Preview' --prerelease --notes 'Windows x64 preview. Extract the ZIP and run ClipboardVault.exe. Includes .NET runtime. Each clipboard batch must be strictly below 100,000,000 bytes. Automated size tests pass; manual clipboard and tray testing remains pending.'
+          }
+          if ($LASTEXITCODE -ne 0) { throw 'Preview release failed' }
+
+
