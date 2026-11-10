@@ -2,6 +2,10 @@
 
 Windows 背景工具，自動把新複製的文字、圖片與檔案存到你選擇的本機資料夾。
 
+## 下載
+
+[Windows x64 預覽版（內含 .NET 執行環境）](https://github.com/owogaui/ClipboardVault/releases/tag/v0.1.0-preview)
+
 ## 使用
 
 1. 解壓縮 Windows 壓縮檔，保持所有檔案放在一起。
@@ -53,7 +57,8 @@ Get-Content ./src/bin/Release/net8.0-windows/self-test-result.txt
 
 ## GitHub 發布
 
-專案已附 CI 與標籤發布工作流程。推送 `v*` 標籤會建立 Release，附上 Windows x64 壓縮檔。正式發布前仍應在 Windows 上人工測試文字、圖片、多檔案、暫停、資料夾切換與開機啟動。
+專案已附 CI 與發布工作流程。第一次 main 分支建置成功後建立 v0.1.0-preview；之後推送新的 `v*` 標籤會建立對應 Release，附上 Windows x64 壓縮檔。正式發布前仍應在 Windows 上人工測試文字、圖片、多檔案、暫停、資料夾切換與開機啟動。
 
 備份資料請放在專案以外的資料夾。只提交來源碼與文件。不要把個人剪貼簿內容加入 GitHub。
+
 
